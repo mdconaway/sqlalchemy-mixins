@@ -9,31 +9,33 @@ from setuptools import setup
 see https://packaging.python.org/tutorials/packaging-projects/
 """
 
+
 def requirements():
     import os
     filename = os.path.join(os.path.dirname(__file__), 'requirements.txt')
     return [line.rstrip('\n') for line in open(filename).readlines()]
 
+
 setup(name='sqlalchemy_mixins',
-      version='1.5',
+      version='1.6.rc01',
       description='Active Record, Django-like queries, nested eager load '
                   'and beauty __repr__ for SQLAlchemy',
-      url='https://github.com/absent1706/sqlalchemy-mixins',
-      download_url='https://github.com/absent1706/sqlalchemy-mixins/archive/master.tar.gz',
-      author='Alexander Litvinenko',
-      author_email='litvinenko1706@gmail.com',
+      url='https://github.com/aurthurm/async-sqlalchemy-mixins',
+      download_url='https://github.com/aurthurm/async-sqlalchemy-mixins/archive/master.tar.gz',
+      author='Aurthur Musendame',
+      author_email='aurthurmusendame@gmail.com',
       license='MIT',
-      packages=['sqlalchemy_mixins'],
+      packages=['async-sqlalchemy_mixins'],
       package_data={'sqlalchemy_mixins': ['py.typed', '*.pyi', '**/*.pyi']},
       zip_safe=False,
       include_package_data=True,
       install_requires=[
-          "SQLAlchemy >= 1.0",
+          "SQLAlchemy >= 1.4.0",
           "six",
-          "typing; python_version < '3.5'"
+          "typing; python_version < '3.10'"
       ],
       keywords=['sqlalchemy', 'active record', 'activerecord', 'orm',
-                'django-like', 'django', 'eager load', 'eagerload',  'repr',
+                'django-like', 'django', 'eager load', 'eagerload', 'repr',
                 '__repr__', 'mysql', 'postgresql', 'pymysql', 'sqlite'],
       platforms='any',
       classifiers=[
@@ -48,9 +50,11 @@ setup(name='sqlalchemy_mixins',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
           'Programming Language :: Python :: Implementation :: CPython',
           'Topic :: Database',
       ],
       test_suite='nose.collector',
       tests_require=['nose', 'nose-cover'],
-  )
+      )

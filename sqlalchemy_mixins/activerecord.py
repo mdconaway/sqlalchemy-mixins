@@ -1,3 +1,4 @@
+# from sqlalchemy.future import select
 from .utils import classproperty
 from .session import SessionMixin
 from .inspection import InspectionMixin
@@ -23,63 +24,73 @@ class ActiveRecordMixin(InspectionMixin, SessionMixin):
 
         return self
 
-    def save(self):
+    async def save(self):
         """Saves the updated model to the current entity db.
         """
         self.session.add(self)
-        self.session.flush()
-        return self
+        return await self.session.flush()
 
     @classmethod
-    def create(cls, **kwargs):
+    async def create(cls, **kwargs):
         """Create and persist a new record for the model
         :param kwargs: attributes for the record
         :return: the new model instance
         """
-        return cls().fill(**kwargs).save()
+        fill = cls().fill(**kwargs)
+        return await fill.save()
 
-    def update(self, **kwargs):
+    async def update(self, **kwargs):
         """Same as :meth:`fill` method but persists changes to database.
         """
-        return self.fill(**kwargs).save()
+        fill = self.fill(**kwargs)
+        return await fill.save()
 
-    def delete(self):
+    async def delete(self):
         """Removes the model from the current entity session and mark for deletion.
         """
-        self.session.delete(self)
-        self.session.flush()
+        await self.session.delete(self)
+        await self.session.flush()
 
     @classmethod
-    def destroy(cls, *ids):
+    async def destroy(cls, *ids):
         """Delete the records with the given ids
         :type ids: list
         :param ids: primary key ids of records
         """
         for pk in ids:
-            obj = cls.find(pk)
+            obj = await cls.find(pk)
             if obj:
-                obj.delete()
-        cls.session.flush()
+                await obj.delete()
+        await cls.session.flush()
 
     @classmethod
-    def all(cls):
-        return cls.query.all()
+    async def all(cls):
+        # result = await cls.session.execute(select(cls))
+        result = await cls.session.execute(cls.query)
+        _all = result.scalars().all()
+        return _all
 
     @classmethod
-    def first(cls):
-        return cls.query.first()
+    async def first(cls):
+        # result = await cls.session.execute(select(cls))
+        result = await cls.session.execute(cls.query)
+        _first = result.scalars().first()
+        return _first
 
     @classmethod
-    def find(cls, id_):
+    async def find(cls, id_):
         """Find record by the id
         :param id_: the primary key
         """
-        return cls.query.get(id_)
+        stmt = cls.where(id=id_)
+        results = await cls.session.execute(stmt)
+        one_or_none = results.scalars().one_or_none()
+        return one_or_none
 
     @classmethod
-    def find_or_fail(cls, id_):
+    async def find_or_fail(cls, id_):
         # assume that query has custom get_or_fail method
-        result = cls.find(id_)
+        result = await cls.find(id_)
         if result:
             return result
         else:

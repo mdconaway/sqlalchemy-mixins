@@ -6,7 +6,7 @@ except ImportError:  # pragma: no cover
 
 from collections import abc, OrderedDict
 
-
+# from sqlalchemy.future import select
 from sqlalchemy import asc, desc, inspect
 from sqlalchemy.orm import aliased, contains_eager
 from sqlalchemy.orm.util import AliasedClass
@@ -108,17 +108,24 @@ def _parse_path_and_make_aliases(entity, entity_path, attrs, aliases):
         aliases[path] = alias, relationship
         _parse_path_and_make_aliases(alias, path, nested_attrs, aliases)
 
+
 def _get_root_cls(query):
     # sqlalchemy < 1.4.0
     if hasattr(query, '_entity_zero'):
         return query._entity_zero().class_
 
     # sqlalchemy >= 1.4.0
-    else:
-        if hasattr(query, '_entity_from_pre_ent_zero'):
+    elif hasattr(query, '_entity_from_pre_ent_zero'):
             return query._entity_from_pre_ent_zero().class_
+
+    # async sqlalchemy >= 1.4.0
+    else:
+        if query.__dict__['_propagate_attrs']['plugin_subject'].class_:
+            return query.__dict__['_propagate_attrs']['plugin_subject'].class_
+
     raise ValueError('Cannot get a root class from`{}`'
                      .format(query))
+
 
 def smart_query(query, filters=None, sort_attrs=None, schema=None):
     """
@@ -156,7 +163,7 @@ def smart_query(query, filters=None, sort_attrs=None, schema=None):
 
     root_cls = _get_root_cls(query)  # for example, User or Post
     attrs = list(_flatten_filter_keys(filters)) + \
-        list(map(lambda s: s.lstrip(DESC_PREFIX), sort_attrs))
+            list(map(lambda s: s.lstrip(DESC_PREFIX), sort_attrs))
     aliases = OrderedDict({})
     _parse_path_and_make_aliases(root_cls, '', attrs, aliases)
 
@@ -384,7 +391,7 @@ class SmartQueryMixin(InspectionMixin, EagerLoadMixin):
         expressions = []
         for attr in columns:
             fn, attr = (desc, attr[1:]) if attr.startswith(DESC_PREFIX) \
-                        else (asc, attr)
+                else (asc, attr)
             if attr not in cls.sortable_attributes:
                 raise KeyError('Cant order {} by {}'.format(cls, attr))
 
@@ -405,6 +412,7 @@ class SmartQueryMixin(InspectionMixin, EagerLoadMixin):
         :param sort_attrs: List[basestring]
         :param schema: dict
         """
+        # return smart_query(select(cls), filters, sort_attrs, schema)
         return smart_query(cls.query, filters, sort_attrs, schema)
 
     @classmethod

@@ -1,3 +1,4 @@
+from sqlalchemy.future import select
 from sqlalchemy.orm import Session, scoped_session, Query
 from .utils import classproperty
 
@@ -32,4 +33,4 @@ class SessionMixin:
         """
         :rtype: Query
         """
-        return cls.session.query(cls)
+        return select(cls)

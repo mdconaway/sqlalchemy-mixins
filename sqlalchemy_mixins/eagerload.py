@@ -3,6 +3,7 @@ try:
 except ImportError: # pragma: no cover
     pass
 
+# from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -94,6 +95,7 @@ class EagerLoadMixin(SessionMixin):
             }
             User.with_(schema).first()
         """
+        # return select(cls).options(*eager_expr(schema or {}))
         return cls.query.options(*eager_expr(schema or {}))
 
     @classmethod
@@ -113,6 +115,7 @@ class EagerLoadMixin(SessionMixin):
             Comment.with_joined(Comment.user, Comment.post).first()
         """
         options = [joinedload(path) for path in paths]
+        # return select(cls).options(*options)
         return cls.query.options(*options)
 
     @classmethod
@@ -132,4 +135,5 @@ class EagerLoadMixin(SessionMixin):
             User.with_subquery(User.posts, User.comments).all()
         """
         options = [subqueryload(path) for path in paths]
+        # return select(cls).options(*options)
         return cls.query.options(*options)
