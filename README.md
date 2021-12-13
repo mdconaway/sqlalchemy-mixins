@@ -1,7 +1,7 @@
 ![example workflow](https://github.com/absent1706/sqlalchemy-mixins/actions/workflows/test-pr.yml/badge.svg)
 [![PyPI version](https://img.shields.io/pypi/v/sqlalchemy_mixins.svg)](https://pypi.python.org/pypi/sqlalchemy_mixins)
 
-# SQLAlchemy mixins
+# SQLAlchemy mixins fully async support for sqlalchemy 1.4 onwards
 
 **Note**: As of **v1.3**, only python **3.5+** is supported.
 
